@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/penci/OneDrive/Desktop/librapid/testing/BigDecimal/main.cpp
+iostream
+-
+cstdint
+-
+string
+-
+chrono
+-
+cmath
+-
+
