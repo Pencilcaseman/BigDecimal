@@ -1,3 +1,0 @@
-C:/Users/penci/OneDrive/Desktop/librapid/testing/BigDecimal/cmake-build-relwithdebinfo/CMakeFiles/edit_cache.dir
-C:/Users/penci/OneDrive/Desktop/librapid/testing/BigDecimal/cmake-build-relwithdebinfo/CMakeFiles/BigDecimal.dir
-C:/Users/penci/OneDrive/Desktop/librapid/testing/BigDecimal/cmake-build-relwithdebinfo/CMakeFiles/rebuild_cache.dir

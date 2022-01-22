@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/librapid-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/librapid-src/jitify" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/librapid-src/pybind11" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/librapid-src/version2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/librapid" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/librapid/jitify" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/librapid/pybind11" vcs="Git" />
+  </component>
+</project>

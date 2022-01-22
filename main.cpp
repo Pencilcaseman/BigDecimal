@@ -6,7 +6,9 @@
 #include <string>
 #include <chrono>
 #include <cmath>
-// #include <librapid/librapid.hpp>
+#include <librapid/librapid.hpp>
+
+#include <mmintrin.h>
 
 char DIGIT_STRING[96] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
                          'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -15,6 +17,7 @@ char DIGIT_STRING[96] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 
                          '%', '^', '&', '*', '(', ')', '[', ']', '{', '}', '|', ';', ':', ',', '.', '<', '>',
                          '/', '?', '`', '~', ' ', '\'', '\'', '"', '+', '-'};
 
+
 int64_t bpe = 0;           // Bits stored per array element
 int64_t mask = 0;          // AND this with an array element to cut it down to bpe bits
 int64_t radix = mask + 1;  // Equals 2^bpe. A single 1 bit to the left of the last bit mask
@@ -22,9 +25,9 @@ int64_t radix = mask + 1;  // Equals 2^bpe. A single 1 bit to the left of the la
 // BigInt one;
 
 void initializeBigInt() {
-    for (bpe = 0; ((1ull << (bpe + 1)) > (1ull << bpe)); bpe++); // bpe = number of bits in the mantissa
+    for (bpe = 0; (((uint64_t) 1 << (bpe + 1)) > ((uint64_t) 1 << bpe)); bpe++); // bpe = number of bits in the mantissa
     bpe >>= 1; // bpe = number of bits in one element of the array representing the BigInt
-    mask = (1 << bpe) - 1; // AND this with an array element to cut it down to bpe bits
+    mask = ((int64_t) 1 << bpe) - (int64_t) 1; // AND this with an array element to cut it down to bpe bits
     radix = mask + 1;
     // TODO
     // one = BigInt(1, 1, 1)
@@ -36,7 +39,7 @@ class BigInt {
 public:
     BigInt() = default;
 
-    BigInt(int64_t value, int64_t bits = 64) {
+    BigInt(type value, type bits = 64) {
         m_len = (bits / bpe) + 2;
         m_data = (type *) malloc(sizeof(type) * m_len); // new type[m_len];
         m_bits = m_len * bpe;
@@ -68,7 +71,7 @@ public:
 
     ~BigInt() {
         // delete[] m_data;
-		free(m_data);
+        free(m_data);
     }
 
     [[nodiscard]] bool isZero() const {
@@ -121,7 +124,7 @@ public:
             reallocate(m_bits + bpe * 3);
     }
 
-    void addInplace(const BigInt &value) {
+    inline void addInplace(const BigInt &value) {
         if (m_data == nullptr) throw std::bad_alloc();
         if (value.m_data == nullptr) throw std::bad_alloc();
 
@@ -141,6 +144,24 @@ public:
 
         if (m_data[m_len - 1])
             reallocate(m_bits + bpe * 3);
+
+        // if (m_len < value.m_len) throw std::runtime_error("NOPE!");
+        // if (m_data == nullptr) throw std::bad_alloc();
+        // if (value.m_data == nullptr) throw std::bad_alloc();
+
+        // uint8_t carry = 0;
+        // int64_t i = 0;
+
+        // for (; i < value.m_len; ++i) {
+        //     carry = _addcarry_u64(carry, m_data[i], value.m_data[i], m_data + i);
+        // }
+
+        // for (; carry; ++i) {
+        //     carry = _addcarry_u64(carry, m_data[i], 0ull, m_data + i);
+        // }
+
+        // if (m_data[m_len - 1])
+        //     reallocate(m_bits + bpe * 3);
     }
 
     [[nodiscard]] BigInt operator-(int64_t value) const {
@@ -446,12 +467,13 @@ public:
         return res;
     }
 
-private:
+// private:
+public:
     void reallocate(int64_t bits) {
         auto newLen = (bits / bpe) + 2;
         auto *newData = (type *) malloc(sizeof(type) * newLen); // new type[newLen];
 
-		int64_t i;
+        int64_t i;
         for (i = 0; i < m_len; ++i)
             newData[i] = m_data[i];
 
@@ -460,7 +482,7 @@ private:
 
         std::swap(m_data, newData);
         // delete[] newData;
-		free(newData);
+        free(newData);
 
         m_bits = bits;
         m_len = newLen;
@@ -481,11 +503,16 @@ private:
         }
     }
 
-private:
+// private:
+public:
     int64_t m_len = -1;
     int64_t m_bits = -1;
     type *m_data = nullptr;
 };
+
+std::ostream &operator<<(std::ostream &os, const BigInt &num) {
+    return os << num.str();
+}
 
 int main() {
     std::cout << std::fixed;
@@ -493,35 +520,54 @@ int main() {
 
     initializeBigInt();
 
+    std::cout << "BPE: " << bpe << "\n";
     std::cout << "Radix: " << radix << "\n";
 
-    BigInt q = BigInt(0), r = BigInt(0);
-    auto x = BigInt(100);
-    auto y = BigInt(10);
-    std::cout << x.str() << "\n";
-    x.divQuotRem(y, q, r);
-    std::cout << q.str() << "\n";
+    BigInt q = BigInt(1ll << 63);
+    std::cout << q << "\n";
+    std::cout << q + q << "\n";
+    std::cout << (q + q) + q << "\n";
+
+    q = 1;
+    for (int i = 0; i < 100; i++) {
+        q = q + q;
+        std::cout << q << "\n";
+    }
+    std::cout << q << "\n";
 
     {
-        int64_t iters = 100000; // 1000;
+        int64_t iters = 10000; // 1000;
         auto value = BigInt(1);
+        std::cout << "Shifting\n";
+        int64_t shift = 0;
+        while (value.m_len < 100000) {
+            value.leftShiftInplace(1 << 6);
+            shift += 1 << 6;
+        }
+        std::cout << "Finished shifting. Shifted " << shift << " places\n";
+        std::cout << "Length: " << value.m_len << "\n";
+
         // value.leftShiftInplace(100000);
         // auto denom = BigInt(1);
         // denom.leftShiftInplace(1000000 - 10);
 
-		BigInt tmp;
-        auto start = (double) std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000;
+        BigInt tmp = 0;
+        auto start = (double) librapid::seconds();
         for (int64_t i = 0; i < iters; i++) {
             // value.leftShiftInplace(1000);
             // value.divQuotRem(denom, q, r);
-            value = value + value;
-			// tmp = value + value;
+            // value = value + value;
+            // tmp = value + value;
+            auto res = value + value;
         }
-        auto end = (double) std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000;
-        std::cout << "Elapsed: " << (end - start) / 1000000 << " s\n";
-        std::cout << "Average: " << (end - start) / (double) iters << " us\n";
-        std::cout << value.str() << "\n";
-        std::cout << q.str() << "\n";
+        auto end = (double) librapid::seconds();
+        std::cout << "Elapsed: " << (end - start) << " s\n";
+        std::cout << "Average: " << ((end - start) / (double) iters) * 1000000000 << " ns\n";
+
+        // std::cout << value.str() << "\n";
+        // std::cout << q.str() << "\n";
+
+        // std::cout << tmp.str() << "\n";
     }
 
     return 0;
